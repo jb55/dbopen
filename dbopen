@@ -8,7 +8,7 @@ from os.path import expanduser
 f = open(expanduser('~/.dropbox/info.json'), 'r')
 info = json.loads(f.read())
 
-pth = (len(sys.argv) > 1 and sys.argv[1]) or os.getcwd()
+pth = os.path.abspath((len(sys.argv) > 1 and sys.argv[1]) or os.getcwd())
 dropboxPath = info["personal"]["path"]
 
 if not dropboxPath in pth:
