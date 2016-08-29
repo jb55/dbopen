@@ -11,14 +11,35 @@ f = open(expanduser('~/.dropbox/info.json'), 'r')
 info = json.loads(f.read())
 
 pth = os.path.abspath((len(sys.argv) > 1 and sys.argv[1]) or os.getcwd())
-pth = os.path.realpath(pth)
+realpath = os.path.realpath(pth)
 
-dropboxPath = info["personal"]["path"]
+def inPaths(p):
+  if p in pth:
+    return pth
+  elif p in realpath:
+    return realpath
+  else:
+    return None
 
-if not dropboxPath in pth:
+personalPath = info["personal"]["path"]
+
+hasWorkPath = "work" in info
+workPath    = info["work"]["path"] if hasWorkPath else None
+
+chosenPath = None
+
+isPersonalPath = inPaths(personalPath)
+isWorkPath     = inPaths(workPath) if workPath else None
+
+if not isPersonalPath and not isWorkPath:
     print("That's not a Dropbox path")
     sys.exit(1)
 
-strippedPath = pth.replace(dropboxPath, "")
+chosen = isPersonalPath if isPersonalPath else isWorkPath
+dropboxPath = personalPath if isPersonalPath else workPath
 
-webbrowser.open_new_tab('https://www.dropbox.com/home%s' % strippedPath)
+strippedPath = chosen.replace(dropboxPath, "")
+
+root = "personal" if isPersonalPath else "work"
+
+webbrowser.open_new_tab('https://www.dropbox.com/%s%s' % (root, strippedPath))
